@@ -79,11 +79,19 @@ router.put('/:id',async (req, res)=> {
 router.post('/login', async (req,res) => {
     const user = await User.findOne({email: req.body.email})
     const secret = process.env.secret;
+    //console.log(req)
+    //console.log(user);
+    //console.log("===================",req.body.email);
     if(!user) {
         return res.status(400).send('The user not found');
     }
+    //console.log("pwd:",req.body.password)
+    //console.log("pwd_h",user["password"])
+    //console.log("pwd_h",user.passwordHash)
 
     if(user && bcrypt.compareSync(req.body.password, user.passwordHash)) {
+    //if(user && bcrypt.compareSync(req.body.password, "$2a$10$PZq.ZywWZNyzJoVpojSFsO4VXzZIhJs4quV.nhpR1ilG8gdH67sEW")) {
+        
         const token = jwt.sign(
             {
                 userId: user.id,

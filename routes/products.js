@@ -1,4 +1,5 @@
 const { Product } = require('../models/product');
+const { User } = require('../models/user');
 const express = require('express');
 const { Category } = require('../models/category');
 const router = express.Router();
@@ -69,13 +70,14 @@ router.get(`/:id`, async (req, res) => {
 
 router.post(`/`, uploadOptions.single('image'), async (req, res) => {
     const category = await Category.findById(req.body.category);
-    if (!category) return res.status(400).send('Invalid Category');
+    if (!category) return res.status(400).send('Invalid product Category');
 
     const file = req.file;
     if (!file) return res.status(400).send('No image in the request');
 
     const fileName = file.filename;
     const basePath = `${req.protocol}://${req.get('host')}/public/uploads/`;
+    //console.log(":::",basePath)
     let product = new Product({
         name: req.body.name,
         description: req.body.description,
@@ -95,6 +97,185 @@ router.post(`/`, uploadOptions.single('image'), async (req, res) => {
     if (!product) return res.status(500).send('The product cannot be created');
 
     res.send(product);
+});
+
+router.post('/:productId/comments/', async (req, res) => {
+    console.log("hello")
+    try {
+        const product = await Product.findById(req.params.productId);
+        //console.log(product)
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found.' });
+        }
+        const { userId, comment, rating } = req.body;
+
+        //console.log(req.body)
+        if (!userId || !comment || !rating) {
+            return res.status(400).json({ error: 'o provide all required fields.', "data" : req.body });
+        }
+        const userData = await User.findById(userId)
+        if (!userData) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        console.log(userData)
+        const username = userData.name || 'unknown';
+        console.log(username)
+        /*
+        const populatedComment = await Product.populate(
+            {userId: userId},
+            {path: 'userId',select: 'name'}
+        )*/
+        const newComment = {
+            userId: userId,
+            //userName: populatedComment.userId.name,
+            userName: username,
+            comment: comment,
+            rating: rating
+        };
+
+        product.comments.push(newComment);
+
+        await product.save();
+
+        res.status(201).json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.post('/:productId/comments/', async (req, res) => {
+    console.log("hello")
+    try {
+        const product = await Product.findById(req.params.productId);
+        //console.log(product)
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found.' });
+        }
+        const { userId, comment, rating } = req.body;
+
+        //console.log(req.body)
+        if (!userId || !comment || !rating) {
+            return res.status(400).json({ error: 'o provide all required fields.', "data" : req.body });
+        }
+        const userData = await User.findById(userId)
+        if (!userData) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+        console.log(userData)
+        const username = userData.name || 'unknown';
+        console.log(username)
+        /*
+        const populatedComment = await Product.populate(
+            {userId: userId},
+            {path: 'userId',select: 'name'}
+        )*/
+        const newComment = {
+            userId: userId,
+            //userName: populatedComment.userId.name,
+            userName: username,
+            comment: comment,
+            rating: rating
+        };
+
+        product.comments.push(newComment);
+
+        await product.save();
+
+        res.status(201).json(product);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/:productId/comments', async (req,res) => {
+    const product = await Product.findById(req.params.productId);
+    console.log(product)
+    const userData = await User.findById(product.comments.userId)
+
+    if (!product.comments) {
+        res.status(500).json({ success: false });
+    }
+    res.send(product.comments);
+})
+
+router.put('/:productId/comments/:commentId', async (req, res) => {
+    try {
+        const productId = req.params.productId;
+        const commentId = req.params.commentId;
+
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found.' });
+        }
+
+        const { userId, comment, rating } = req.body;
+
+        if (!userId || !comment || !rating) {
+            return res.status(400).json({ error: 'userId, comment, and rating are mandatory.' });
+        }
+
+        const userData = await User.findById(userId);
+
+        if (!userData) {
+            return res.status(404).json({ error: 'User not found.' });
+        }
+
+        const username = userData.name || 'unknown';
+
+        const updatedComment = {
+            userId: userId,
+            userName: username,
+            comment: comment,
+            rating: rating
+        };
+
+        const commentIndex = product.comments.findIndex(comment => comment._id.equals(commentId));
+
+        if (commentIndex === -1) {
+            return res.status(404).json({ error: 'Comment not found.' });
+        }
+
+        product.comments[commentIndex] = updatedComment;
+
+        await product.save();
+
+        res.status(200).json({ message: 'Comment updated successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.delete('/:productId/comments/:commentId',async (req,res) => {
+    try {
+        const productId = req.params.productId;
+        const commentId = req.params.commentId;
+    
+        const product = await Product.findById(productId);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found.' });
+        }
+        const commentIndex = product.comments.findIndex(comment => comment._id.toString() === commentId);
+
+        console.log("coment_index",commentIndex);
+        if (commentIndex === -1) {
+            return res.status(404).json({ error: 'Comment not found.' });
+        }
+
+        product.comments.splice(commentIndex, 1);
+        console.log("product:::",product);
+
+        await product.save();
+
+        res.status(200).json({ message: 'Comment deleted successfully.' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
 });
 
 router.put('/:id', uploadOptions.single('image'), async (req, res) => {
@@ -132,6 +313,7 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
             rating: req.body.rating,
             numReviews: req.body.numReviews,
             isFeatured: req.body.isFeatured,
+            comments: req.body.comment
         },
         { new: true }
     );
@@ -141,6 +323,8 @@ router.put('/:id', uploadOptions.single('image'), async (req, res) => {
 
     res.send(updatedProduct);
 });
+
+
 
 router.delete('/:id', (req, res) => {
     Product.findByIdAndRemove(req.params.id)

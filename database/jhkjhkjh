@@ -1,0 +1,71 @@
+{
+  "image": "Macbook.jpg",
+  "brand": "PS3",
+  "price": 250,
+  "rating": 1,
+  "numReviews": 0,
+  "isFeatured": true,
+  "name": "new data",
+  "description": "The most hard FIFA ever",
+  "category": {
+    "_id": "5f15d5b2cb4a6642bddc0fe7"
+  },
+  "countInStock": 25
+}
+
+
+"comment": {
+  "user": "Jit Halder",
+  "comment": "Mind Blowing 🥰 I bought a camera for the first time in my life",
+  "rating": "",
+  "date": "sep 22"
+}
+
+
+{
+  "isAdmin": false,
+  "name": "rubal1",
+  "email": "rubal1@gmail.com",
+  "password": "$2a$10$dLp60sq6x0MZH/UAS9BEbOUeHF/1MxWy4SJrcvUURqie148GKasja",
+}
+
+{
+  "richDescription": "",
+  "image": "http://localhost:3000/public/uploads/0ef3aefb-7fa8-4e00-9c26-96fe95b37780.png-1602682971782.png-1705833950787.png",
+  "images": [],
+  "brand": "PS3",
+  "price": {
+    "$numberInt": "250"
+  },
+  "rating": {
+    "$numberInt": "1"
+  },
+  "numReviews": {
+    "$numberInt": "0"
+  },
+  "isFeatured": true,
+  "name": "rujel try ",
+  "description": "jkdkhskjdhkjsh",
+  "countInStock": {
+    "$numberInt": "25"
+  },
+  "comments": [
+    {
+      "_id": {
+        "$oid": "65acfda96565d8328cc30dd5"
+      },
+      "userId": {
+        "$oid": "60a0e09c47af8d002274b917"
+      },
+      "comment": "hello",
+      "rating": {
+        "$numberInt": "3"
+      },
+      "date": {
+        "$date": {
+          "$numberLong": "1705835945545"
+        }
+      }
+    }
+  ]
+}
